@@ -74,7 +74,7 @@ crashlytics-build.properties
 /[Aa]ssets/Oculus
 /[Aa]ssets/Samples
 /[Aa]ssets/Oculus.meta
-/[Aa]ssets/XR/
+/[Aa]ssets/XR/*
 /Packages/packages-lock.json
 /Packages/manifest.json
 /Library/PackageCache
