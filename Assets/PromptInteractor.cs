@@ -137,7 +137,7 @@ namespace Samples.Whisper
             };
 
             string jsonString = JsonConvert.SerializeObject(data, Formatting.Indented);
-
+            
             UnityWebRequest request = UnityWebRequest.Put(cohereURL, jsonString);
             request.method = "POST";
             request.SetRequestHeader("Content-Type", "application/json");
