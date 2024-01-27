@@ -136,8 +136,8 @@ namespace Samples.Whisper
 
 
         [SerializeField] private Button recordButton;
-        [SerializeField] private Image progressBar;
-        [SerializeField] private TMP_Text message;
+        [SerializeField] private GameObject progressBar;
+        //[SerializeField] private TMP_Text message;
 
         private readonly string fileName = "output.wav";
         private readonly int duration = 5;
@@ -164,7 +164,7 @@ namespace Samples.Whisper
         private async void EndRecording()
         {
             Debug.Log("END RECORDING");
-            message.SetText("Transcripting...");
+            //message.SetText("Transcripting...");
 
 #if !UNITY_WEBGL
             Microphone.End(null);
@@ -181,19 +181,21 @@ namespace Samples.Whisper
             };
             var res = await openai.CreateAudioTranscription(req);
             Debug.Log("got response");
-            message.SetText(res.Text);
+
+
+
+            //message.SetText(res.Text);
             chatHistory.Add(new ChatMessage("USER", res.Text));
             allUserSentences += res.Text + " ";
             Debug.Log(res.Text);
             recordButton.enabled = true;
         }
 
-        public IEnumerator callCohere()
+        public IEnumerator callCohere(string input)
         {
-
             var data = new
             {
-                message = "What is my name?",
+                message = input,
                 chat_history = chatHistory
             };
 
@@ -520,10 +522,16 @@ namespace Samples.Whisper
         // Update is called once per frame
         void Update()
         {
+            
+
             if (isRecording)
             {
                 time += Time.deltaTime;
-                //progressBar.fillAmount = time / duration;
+                float progress = time / duration;
+
+                Vector3 scale = progressBar.transform.localScale;
+                scale.x = Mathf.Clamp01(progress); // Ensure the scale is between 0 and 1
+                progressBar.transform.localScale = scale;
                 //Debug.Log("timing");
 
                 if (time >= duration)

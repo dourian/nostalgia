@@ -18080,7 +18080,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: -3.151948e+18}
+  m_BoundingSphereOverride: {x: 3e-45, y: 1.8530916e-21, z: 1.02e-43, w: 4e-44}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -19034,6 +19034,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   generatedText: 
+  allUserSentences: 
   recordButton: {fileID: 3409566789716954865}
   progressBar: {fileID: 0}
   message: {fileID: 2060731684}
