@@ -110,14 +110,14 @@ namespace Samples.Whisper
         private async void EndRecording()
         {
             Debug.Log("END RECORDING");
-            message.text = "Transcripting...";
+            message.SetText("Transcripting...");
 
 #if !UNITY_WEBGL
             Microphone.End(null);
 #endif
-
+            Debug.Log("trying to save file");
             byte[] data = SaveWav.Save(fileName, clip);
-
+            Debug.Log("saved file");
             var req = new CreateAudioTranscriptionsRequest
             {
                 FileData = new FileData() { Data = data, Name = "audio.wav" },
@@ -126,9 +126,10 @@ namespace Samples.Whisper
                 Language = "en"
             };
             var res = await openai.CreateAudioTranscription(req);
-
-            progressBar.fillAmount = 0;
-            message.text = res.Text;
+            Debug.Log("got response");
+            //progressBar.fillAmount = 0;
+            message.SetText(res.Text);
+            Debug.Log(res.Text);
             recordButton.enabled = true;
         }
 
@@ -294,12 +295,14 @@ namespace Samples.Whisper
             {
                 time += Time.deltaTime;
                 //progressBar.fillAmount = time / duration;
+                Debug.Log("timing");
 
                 if (time >= duration)
                 {
                     time = 0;
                     isRecording = false;
                     EndRecording();
+                    Debug.Log("booomba");
                 }
             }
 
