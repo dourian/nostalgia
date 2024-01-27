@@ -77,4 +77,4 @@ crashlytics-build.properties
 /[Aa]ssets/XR/
 /Packages/packages-lock.json
 /Packages/manifest.json
-
+/Library/PackageCache
