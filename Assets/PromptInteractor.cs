@@ -95,6 +95,7 @@ namespace Samples.Whisper
 
         private void StartRecording()
         {
+            Debug.Log("CLICKED BUTTON");
             isRecording = true;
             recordButton.enabled = false;
 
@@ -102,11 +103,13 @@ namespace Samples.Whisper
 
 #if !UNITY_WEBGL
             clip = Microphone.Start("", false, duration, 44100);
+            Debug.Log("DONE RECORDING");
 #endif
         }
 
         private async void EndRecording()
         {
+            Debug.Log("END RECORDING");
             message.text = "Transcripting...";
 
 #if !UNITY_WEBGL
@@ -273,6 +276,7 @@ namespace Samples.Whisper
             audioSource = GetComponent<AudioSource>();
             // generatedText = "La France est un pays aux multiples facettes, riche d'une histoire profonde et d'une culture diversifiée. De la splendeur de Paris avec sa Tour Eiffel emblématique, ses musées d'art de renommée mondiale comme le Louvre, et ses charmantes rues pavées, à la beauté bucolique des régions telles que la Provence et la Vallée de la Loire, la France offre une expérience unique à chaque visiteur. La gastronomie française, réputée pour sa finesse et sa diversité, va des fromages savoureux et des vins délicats aux pâtisseries exquises et aux plats traditionnels comme le coq au vin. ";
             StartCoroutine(CallElevenAPI());
+            recordButton.onClick.AddListener(StartRecording);
             // StartCoroutine(callCohere());
             // { 
             //     StartCoroutine(CallElevenAPI(generatedText));
@@ -289,7 +293,7 @@ namespace Samples.Whisper
             if (isRecording)
             {
                 time += Time.deltaTime;
-                progressBar.fillAmount = time / duration;
+                //progressBar.fillAmount = time / duration;
 
                 if (time >= duration)
                 {
@@ -297,6 +301,11 @@ namespace Samples.Whisper
                     isRecording = false;
                     EndRecording();
                 }
+            }
+
+            if (OVRInput.Get(OVRInput.Button.One))
+            {
+                Debug.Log("A button pressed");
             }
         }
     }
