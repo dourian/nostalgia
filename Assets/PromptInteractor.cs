@@ -55,8 +55,17 @@ namespace Samples.Whisper
         public int output_tokens;
     }
 
+    public class ChatMessage
+    {
+        public string role;
+        public string message;
 
-
+        public ChatMessage(string role, string message)
+        {
+            this.role = role;
+            this.message = message;
+        }
+    }
 
 
     [RequireComponent(typeof(AudioSource))]
@@ -66,11 +75,17 @@ namespace Samples.Whisper
         private string cohereURL = "https://api.cohere.ai/v1/chat";
         private string cohereAPI = "";
 
-        private string elevenlabsURL = "https://api.elevenlabs.io/v1/text-to-speech/QI26inVNTC79iPFBmt3s";
+        private string elevenlabsURL = "https://api.elevenlabs.io/v1/text-to-speech/Pln23uvtFNFOqsWYkpst";
 
         private string elevenlabsAPI = "";
 
         public string generatedText = "";
+
+        private List<ChatMessage> chatHistory = new List<ChatMessage>();
+        private List<ChatMessage> userMessages = new List<ChatMessage>();
+
+        private List<ChatMessage> grammarSuggestionHistory = new List<ChatMessage>();
+
 
         AudioSource audioSource;
 
@@ -127,21 +142,23 @@ namespace Samples.Whisper
             };
             var res = await openai.CreateAudioTranscription(req);
             Debug.Log("got response");
-            //progressBar.fillAmount = 0;
             message.SetText(res.Text);
+            chatHistory.Add(new ChatMessage("USER", res.Text));
             Debug.Log(res.Text);
             recordButton.enabled = true;
         }
 
-        public IEnumerator callCohere(Action onCompleted = null)
+        public IEnumerator callCohere()
         {
+
             var data = new
             {
-                message = "You are not allowed to break character. Speak to me in French and only in french, no english allowed. Please keep your responses to 2 sentences maximum. How are you today?",
+                message = "What is my name?",
+                chat_history = chatHistory
             };
 
             string jsonString = JsonConvert.SerializeObject(data, Formatting.Indented);
-            
+
             UnityWebRequest request = UnityWebRequest.Put(cohereURL, jsonString);
             request.method = "POST";
             request.SetRequestHeader("Content-Type", "application/json");
@@ -161,16 +178,66 @@ namespace Samples.Whisper
 
                 UnityEngine.Debug.Log("Text: " + response.text);
                 generatedText = response.text;
-                StartCoroutine(CallElevenAPI());
+                chatHistory.Add(new ChatMessage("CHATBOT", response.text));
+                StartCoroutine(getGrammarSuggestions());
+                // StartCoroutine(CallElevenAPI(generatedText));
             }
         }
 
+        // public IEnumerator evaluateUser() 
+        // {
 
+        // }
 
-
-        public IEnumerator CallElevenAPI()
+        public IEnumerator getGrammarSuggestions()
         {
-            string text = generatedText;
+            userMessages.Add(new ChatMessage("USER", "Je me appelle Sarina"));
+            int loopCount = Math.Min(5, userMessages.Count);
+            string userSentences = "";
+
+            for (int i = 0; i < loopCount; i++)
+            {
+                ChatMessage message = userMessages[i];
+                // Process message here
+                userSentences += message.message + " ";
+            }
+
+            string promptMessage = "Please provide concise grammar suggestions for the following sentences: " + userSentences;
+
+            var data = new
+            {
+                preamble_override = "You are a smart French grammar assistant who corrects mistakes made in French.",
+                message = promptMessage
+            };
+
+            string jsonString = JsonConvert.SerializeObject(data, Formatting.Indented);
+
+            UnityWebRequest request = UnityWebRequest.Put(cohereURL, jsonString);
+            request.method = "POST";
+            request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Authorization", "Bearer " + cohereAPI);
+
+            yield return request.SendWebRequest();
+
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                UnityEngine.Debug.Log("issue encountered");
+                UnityEngine.Debug.Log("Error: " + request.error);
+            }
+            else
+            {
+                UnityEngine.Debug.Log(request.downloadHandler.text);
+                ApiResponse response = JsonUtility.FromJson<ApiResponse>(request.downloadHandler.text);
+
+                Debug.Log("Text: " + response.text);
+                // generatedText = response.text;
+            }
+
+        }
+
+
+        public IEnumerator CallElevenAPI(string text)
+        {
             // Create a dictionary for voice settings
             var voiceSettings = new Dictionary<string, double>
         {
@@ -202,6 +269,11 @@ namespace Samples.Whisper
 
             yield return request1.SendWebRequest();
 
+            // AudioClip audio1 = null;
+            // audio1 = Resources.Load<AudioClip>("pikapika");
+            // audioSource.clip = audio1;
+            // audioSource.Play();
+
             if (request1.result != UnityWebRequest.Result.Success)
             {
                 Debug.Log(request1.error);
@@ -211,60 +283,60 @@ namespace Samples.Whisper
             {
                 Debug.Log("Form upload complete!");
 
-                int retryCount = 0;
-                int maxRetries = 3;
+                // int retryCount = 0;
+                // int maxRetries = 3;
                 AudioClip audio = null;
-                bool shouldRetry = false;
+                // bool shouldRetry = false;
 
-                while (retryCount < maxRetries)
-                {
-                    try
-                    {
-                        audio = DownloadHandlerAudioClip.GetContent(request1);
-                        if (audio != null)
-                        {
-                            break;
-                        }
-                    }
-                    catch (System.Exception ex)
-                    {
-                        Debug.LogError("Error while getting audio clip: " + ex.Message);
-                    }
-
-                    if (!audio)
-                    {
-                        // Wait for 1 second before retrying
-                        Debug.Log("its null");
-                        yield return new WaitForSeconds(1.0f);
-                        retryCount++;
-                    }
-                    else
-                    {
-                        break; // Break the loop if no need to retry
-                    }
-                }
-
+                // while (retryCount < maxRetries)
+                // {
+                audio = DownloadHandlerAudioClip.GetContent(request1);
                 if (audio != null)
                 {
-                    // Use the audioClip here
-                    Debug.Log("Audio clip loaded successfully.");
+                    audioSource.clip = audio;
+                    audioSource.Play();
                 }
                 else
                 {
-                    Debug.LogError("Failed to load audio clip after " + maxRetries + " retries.");
+                    AudioClip audio_error = null;
+                    Debug.LogError("Error while getting audio clip: ");
+                    audio_error = Resources.Load<AudioClip>("pikapika");
+                    audioSource.clip = audio_error;
+                    audioSource.Play();
                 }
 
-                // try {
-                // AudioClip audio = DownloadHandlerAudioClip.GetContent(request1);
-                // float[] myFloatArray = new float[audio.samples * audio.channels];
-                // audio.GetData(myFloatArray, 0);
-                // foreach (float a in myFloatArray)
+
+                // if (!audio)
                 // {
-                //     Debug.Log(a);
+                //     // Wait for 1 second before retrying
+                //     Debug.Log("its null");
+                //     yield return new WaitForSeconds(1.0f);
+                //     retryCount++;
                 // }
-                audioSource.clip = audio;
-                audioSource.Play();
+                // else
+                // {
+                //     break; // Break the loop if no need to retry
+                // }
             }
+
+            // if (audio != null)
+            // {
+            //     // Use the audioClip here
+            //     Debug.Log("Audio clip loaded successfully.");
+            // }
+
+
+            // try {
+            // AudioClip audio = DownloadHandlerAudioClip.GetContent(request1);
+            // float[] myFloatArray = new float[audio.samples * audio.channels];
+            // audio.GetData(myFloatArray, 0);
+            // foreach (float a in myFloatArray)
+            // {
+            //     Debug.Log(a);
+            // }
+            // audioSource.clip = audio;
+            // audioSource.Play();
+            // }
         }
 
         void Start()
@@ -276,7 +348,7 @@ namespace Samples.Whisper
             StartCoroutine(callCohere());
             audioSource = GetComponent<AudioSource>();
             // generatedText = "La France est un pays aux multiples facettes, riche d'une histoire profonde et d'une culture diversifiée. De la splendeur de Paris avec sa Tour Eiffel emblématique, ses musées d'art de renommée mondiale comme le Louvre, et ses charmantes rues pavées, à la beauté bucolique des régions telles que la Provence et la Vallée de la Loire, la France offre une expérience unique à chaque visiteur. La gastronomie française, réputée pour sa finesse et sa diversité, va des fromages savoureux et des vins délicats aux pâtisseries exquises et aux plats traditionnels comme le coq au vin. ";
-            StartCoroutine(CallElevenAPI());
+            // StartCoroutine(CallElevenAPI());
             recordButton.onClick.AddListener(StartRecording);
             // StartCoroutine(callCohere());
             // { 
