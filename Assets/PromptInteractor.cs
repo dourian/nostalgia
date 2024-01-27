@@ -132,7 +132,7 @@ namespace Samples.Whisper
 
         AudioSource audioSource;
 
-        string fileloc = "./Assets/keys.txt";
+        //string fileloc = "Assets/Resources/keys.txt";
 
 
         [SerializeField] private Button recordButton;
@@ -482,8 +482,22 @@ namespace Samples.Whisper
 
         void Start()
         {
-            string[] lines;
-            lines = File.ReadAllLines(fileloc);
+            string[] lines = { };
+            // Load the text asset from the Resources folder
+            TextAsset textAsset = Resources.Load<TextAsset>("keys");
+
+            // Check if the text asset is not null before reading lines
+            if (textAsset != null)
+            {
+                // Read lines from the text asset
+                lines = textAsset.text.Split('\n');
+            }
+            else
+            {
+                // Handle the case where the text asset is not found
+                Debug.LogError("TextAsset 'keys' not found in Resources folder.");
+            }
+
             elevenlabsAPI = lines[0];
             cohereAPI = lines[1];
             openAIAPI = lines[2];
