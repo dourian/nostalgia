@@ -56,9 +56,6 @@ namespace Samples.Whisper
     }
 
 
-
-
-
     [RequireComponent(typeof(AudioSource))]
 
     public class PromptInteractor : MonoBehaviour
@@ -70,15 +67,13 @@ namespace Samples.Whisper
 
         private string elevenlabsAPI = "";
 
+        private string openAIAPI = "";
+
         public string generatedText = "";
 
         AudioSource audioSource;
 
         string fileloc = "./Assets/keys.txt";
-
-        // string apiKey;
-
-        // Start is called before the first frame update
 
 
         [SerializeField] private Button recordButton;
@@ -91,9 +86,9 @@ namespace Samples.Whisper
         private AudioClip clip;
         private bool isRecording;
         private float time;
-        private OpenAIApi openai = new OpenAIApi();
+        private OpenAIApi openai;
 
-        private void StartRecording()
+        public void StartRecording()
         {
             Debug.Log("CLICKED BUTTON");
             isRecording = true;
@@ -273,6 +268,8 @@ namespace Samples.Whisper
             lines = File.ReadAllLines(fileloc);
             elevenlabsAPI = lines[0];
             cohereAPI = lines[1];
+            openAIAPI = lines[2];
+            openai = new OpenAIApi(openAIAPI);
             StartCoroutine(callCohere());
             audioSource = GetComponent<AudioSource>();
             // generatedText = "La France est un pays aux multiples facettes, riche d'une histoire profonde et d'une culture diversifiée. De la splendeur de Paris avec sa Tour Eiffel emblématique, ses musées d'art de renommée mondiale comme le Louvre, et ses charmantes rues pavées, à la beauté bucolique des régions telles que la Provence et la Vallée de la Loire, la France offre une expérience unique à chaque visiteur. La gastronomie française, réputée pour sa finesse et sa diversité, va des fromages savoureux et des vins délicats aux pâtisseries exquises et aux plats traditionnels comme le coq au vin. ";
@@ -295,7 +292,7 @@ namespace Samples.Whisper
             {
                 time += Time.deltaTime;
                 //progressBar.fillAmount = time / duration;
-                Debug.Log("timing");
+                //Debug.Log("timing");
 
                 if (time >= duration)
                 {

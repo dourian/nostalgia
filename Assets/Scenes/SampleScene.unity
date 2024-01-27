@@ -18080,7 +18080,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: -3.1639113e+32, y: 3.5855034e+35, z: -2.037374e-32, w: NaN}
+  m_BoundingSphereOverride: {x: 1e-44, y: 1.5068e-41, z: 1.02e-43, w: 1.8e-44}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -19015,7 +19015,7 @@ GameObject:
   - component: {fileID: 1891203299}
   - component: {fileID: 1891203304}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: dCube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23323,9 +23323,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 167457187}
-        m_TargetAssemblyTypeName: Unity.VRTemplate.StepManager, Assembly-CSharp
-        m_MethodName: Next
+      - m_Target: {fileID: 1891203299}
+        m_TargetAssemblyTypeName: Samples.Whisper.PromptInteractor, Assembly-CSharp
+        m_MethodName: StartRecording
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
