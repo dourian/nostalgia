@@ -79,3 +79,5 @@ crashlytics-build.properties
 /Packages/packages-lock.json
 /Packages/manifest.json
 /Library/PackageCache
+Packages/manifest.json
+Packages/packages-lock.json
