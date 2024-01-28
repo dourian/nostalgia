@@ -15,7 +15,9 @@ using TMPro;
 
 public class LevelScript : MonoBehaviour
 {
-    string fileloc = "./Assets/keys.txt";
+
+    public static string allUserSentences1 = "";
+    //string fileloc = "./Assets/keys.txt";
     public class RootObject
     {
         public string id;
@@ -104,12 +106,23 @@ public class LevelScript : MonoBehaviour
     }
     private List<FrenchSentence> frenchClassificationSentences = new List<FrenchSentence>();
 
-    public string allUserSentences = "";
-
     void Start()
     {
-        string[] lines;
-        lines = File.ReadAllLines(fileloc);
+        string[] lines = { };
+        // Load the text asset from the Resources folder
+        TextAsset textAsset = Resources.Load<TextAsset>("keys");
+
+        // // Check if the text asset is not null before reading lines
+        if (textAsset != null)
+        {
+            // Read lines from the text asset
+            lines = textAsset.text.Split('\n');
+        }
+        else
+        {
+            // Handle the case where the text asset is not found
+            Debug.LogError("TextAsset 'keys' not found in Resources folder.");
+        }
         cohereAPI = lines[1];
         // Example: Change the text at the start
         estimatedLevel.fontSize = 16;
@@ -157,12 +170,13 @@ public class LevelScript : MonoBehaviour
         frenchClassificationSentences.Add(new FrenchSentence("La capacité à discerner les subtilités dans les dialogues politiques est essentielle pour comprendre les enjeux actuels.", "C2"));
         frenchClassificationSentences.Add(new FrenchSentence("Il est impératif d'aborder cette question avec une perspective globale, en tenant compte des implications historiques et culturelles.", "C2"));
 
-        allUserSentences = "Puis-je manger le pomme sur cette table? Je ai très faim et excité.";
+        Debug.Log(allUserSentences1);
+
         var data = new
         {
             inputs = new string[]
             {
-                allUserSentences
+                allUserSentences1
             },
             examples = frenchClassificationSentences
         };
@@ -194,12 +208,11 @@ public class LevelScript : MonoBehaviour
     }
     public IEnumerator generateReport()
     {
-        allUserSentences = "Puis-je manger le pomme sur cette table? Je ai très faim et excité.";
 
         var data = new
         {
             preamble_override = "You are a smart French grammar assistant who suggests general ideas for how to improve in French from a series of sentences. If you cannot find grammar errors, suggest new vocaulary words.",
-            message = allUserSentences
+            message = allUserSentences1
         };
 
         string jsonString = JsonConvert.SerializeObject(data, Formatting.Indented);

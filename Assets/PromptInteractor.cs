@@ -13,6 +13,7 @@ using UnityEngine.UI;
 using TMPro;
 using static UnityEngine.Rendering.DebugUI;
 using Button = UnityEngine.UI.Button;
+using UnityEngine.SceneManagement;
 
 namespace Samples.Whisper
 {
@@ -146,15 +147,36 @@ namespace Samples.Whisper
 
         public string generatedText = "";
 
+        public int rankIndex = -1;
+
         private List<ChatMessage> chatHistory = new List<ChatMessage>();
         private List<ChatMessage> userMessages = new List<ChatMessage>();
 
         private List<ChatMessage> grammarSuggestionHistory = new List<ChatMessage>();
         private List<FrenchSentence> frenchClassificationSentences = new List<FrenchSentence>();
-        private List<string> rerankDocuments = new List<string>();
+        private List<string> rerankDocumentsCoffee = new List<string>
+        {
+            "Bien sûr, vous pouvez commander quelque chose, que voudriez-vous",
+            "Voici quelques recommandations de latte glacé, cappuccino, expresso shot",
+            "désolé, je ne peux pas t'aider avec ça"
+        };
+
+        private List<string> rerankDocumentsMuseum = new List<string>
+        {
+            "merci de m'avoir dit ton tableau préféré",
+            "-",
+        };
+
+        private List<string> rerankDocumentsMeadow = new List<string>
+        {
+            "C'est une belle carrière",
+            "-",
+        };
+
+
+        private int countDown = 3;
 
         public string allUserSentences = "";
-
 
         AudioSource audioSource;
 
@@ -175,6 +197,9 @@ namespace Samples.Whisper
         private List<OpenAI.ChatMessage> messages = new List<OpenAI.ChatMessage>(); // open ai
         private string prompt = "Act as a random stranger in a chat room and reply to the questions. Don't break character. Don't ever mention that you are an AI model.";
 
+        public int curScene = 0;
+
+
         public void StartRecording()
         {
             Debug.Log("CLICKED BUTTON");
@@ -184,6 +209,7 @@ namespace Samples.Whisper
             var index = PlayerPrefs.GetInt("user-mic-device-index");
 
 #if !UNITY_WEBGL
+            //clip = Microphone.Start("Android camcorder input", false, duration, 44100);
             clip = Microphone.Start("", false, duration, 44100);
             Debug.Log("DONE RECORDING");
 #endif
@@ -212,7 +238,23 @@ namespace Samples.Whisper
             SendReply(res.Text);
             chatHistory.Add(new ChatMessage("USER", res.Text));
             userMessages.Add(new ChatMessage("USER", res.Text));
-            allUserSentences += res.Text + " ";
+
+            // check rerank
+            switch (curScene)
+            {
+                case 1:
+                    StartCoroutine(rerank(rerankDocumentsCoffee, res.Text));
+                    break;
+                case 2:
+                    StartCoroutine(rerank(rerankDocumentsMuseum, res.Text));
+                    break;
+                case 3:
+                    StartCoroutine(rerank(rerankDocumentsMeadow, res.Text));
+                    break;
+            }
+
+                allUserSentences += res.Text + " ";
+            LevelScript.allUserSentences1 += res.Text + " ";
             Debug.Log(res.Text);
             recordButton.enabled = true;
         }
@@ -223,13 +265,13 @@ namespace Samples.Whisper
             switch (scene)
             {
                 case 1:
-                    prompt = "vous êtes barista. prends ma commande. Ne parle pas anglais. Gardez chaque réponse de 10 mots ou moins.";
+                    prompt = "vous êtes une heureuse barista. Ne parle pas anglais. Gardez chaque réponse de 10 mots ou moins.";
                     break;
                 case 2:
-                    prompt = "Monday";
+                    prompt = "tu es mon ami avec moi au musée, tu veux savoir quel est mon tableau préféré. Ne parle pas anglais. Gardez chaque réponse de 10 mots ou moins.";
                     break;
                 case 3:
-                    prompt = "Tuesday";
+                    prompt = "tu es mon petit-enfant, parle de ce que tu veux être quand tu seras grand et demande-moi ce que je voulais être. Ne parle pas anglais. Gardez chaque réponse de 10 mots ou moins.";
                     break;
             }
 
@@ -244,7 +286,7 @@ namespace Samples.Whisper
                 Content = text
             };
 
-            if (messages.Count == 0) newMessage.Content = GeneratePreamble(1) + "\n" + text;
+            if (messages.Count == 0) newMessage.Content = GeneratePreamble(curScene) + "\n" + text;
 
             messages.Add(newMessage);
 
@@ -280,7 +322,7 @@ namespace Samples.Whisper
             {
                 message = input,
                 chat_history = chatHistory,
-                preamble_override = GeneratePreamble(1),
+                preamble_override = GeneratePreamble(curScene),
                 presence_penalty = 1
             };
 
@@ -346,8 +388,6 @@ namespace Samples.Whisper
             frenchClassificationSentences.Add(new FrenchSentence("Son analyse critique des œuvres littéraires démontre une profonde connaissance du sujet.", "C2"));
             frenchClassificationSentences.Add(new FrenchSentence("La capacité à discerner les subtilités dans les dialogues politiques est essentielle pour comprendre les enjeux actuels.", "C2"));
             frenchClassificationSentences.Add(new FrenchSentence("Il est impératif d'aborder cette question avec une perspective globale, en tenant compte des implications historiques et culturelles.", "C2"));
-
-            allUserSentences = "Puis-je manger le pomme sur cette table? Je ai très faim et excité.";
             var data = new
             {
                 inputs = new string[]
@@ -382,20 +422,20 @@ namespace Samples.Whisper
 
         }
 
-        public IEnumerator rerank()
+        public IEnumerator rerank(List<string> documents, string query)
         {
             Debug.Log("running rerank");
-            rerankDocuments.Add("Of course you can order something, what would you like");
-            rerankDocuments.Add("Here are some recommendations: iced latte, cappuccino, espresso shot");
-            rerankDocuments.Add("The washroom is to the right");
-            rerankDocuments.Add("Sorry, I can't help you with that");
+            // rerankDocuments.Add("Of course you can order something, what would you like");
+            // rerankDocuments.Add("Here are some recommendations: iced latte, cappuccino, espresso shot");
+            // rerankDocuments.Add("The washroom is to the right");
+            // rerankDocuments.Add("Sorry, I can't help you with that");
 
             var data = new
             {
                 return_documents = true,
                 max_chunks_per_doc = 10,
-                documents = rerankDocuments,
-                query = "where's the washroom"
+                documents = documents,
+                query = query
             };
 
             string jsonString = JsonConvert.SerializeObject(data, Formatting.Indented);
@@ -410,21 +450,22 @@ namespace Samples.Whisper
             {
                 UnityEngine.Debug.Log("issue encountered");
                 UnityEngine.Debug.Log("Error: " + request.error);
+                UnityEngine.Debug.Log("Error: " + request.downloadHandler.text);
             }
             else
             {
                 UnityEngine.Debug.Log(request.downloadHandler.text);
                 ReRankRoot response = JsonUtility.FromJson<ReRankRoot>(request.downloadHandler.text);
 
-                Debug.Log(response.results[0].document.text);
+                Debug.Log(response.results[0].index);
                 // generatedText = response.text;
+                rankIndex = response.results[0].index;
             }
 
         }
 
         public IEnumerator generateReport()
         {
-            allUserSentences = "Puis-je manger le pomme sur cette table? Je ai très faim et excité.";
 
             var data = new
             {
@@ -543,7 +584,7 @@ namespace Samples.Whisper
                 Debug.Log("Form upload complete!");
 
                 int retryCount = 0;
-                int maxRetries = 5;
+                int maxRetries = 10;
                 AudioClip audio = null;
                 // bool shouldRetry = false;
 
@@ -569,7 +610,7 @@ namespace Samples.Whisper
                     {
                         // Wait for 1 second before retrying
                         Debug.Log("its null");
-                        yield return new WaitForSeconds(0.5f);
+                        yield return new WaitForSeconds(1f);
                         retryCount++;
                     }
                     else
@@ -585,6 +626,7 @@ namespace Samples.Whisper
 
                     audioSource.clip = audio;
                     audioSource.Play();
+                    yield return new WaitForSeconds(audioSource.clip.length + 3);
                 }
 
 
@@ -600,6 +642,27 @@ namespace Samples.Whisper
                 //audioSource.clip = audio;
                 //audioSource.Play();
                 //}
+            }
+            Debug.Log("RANK INDEX: " + rankIndex);
+            countDown--;
+            if (rankIndex == 0)
+            {
+                countDown = 2 > countDown ? countDown : 2;
+            }
+
+            if (countDown == 0)
+            {
+                if (curScene == 3)
+                {
+                    Debug.Log(allUserSentences);
+                    LevelScript.allUserSentences1 = allUserSentences;
+                    SceneManager.LoadScene("TipsScene");
+                }
+                else if (curScene == 1)
+                {
+                    SceneManager.LoadScene("darkTheme");
+                }
+                else SceneManager.LoadScene("MenuScene");
             }
         }
 
@@ -626,7 +689,16 @@ namespace Samples.Whisper
             openAIAPI = lines[2];
             openai = new OpenAIApi(openAIAPI);
             Debug.Log("runing");
-            StartCoroutine(rerank());
+            List<string> rerankDocuments = new List<string>();
+            rerankDocuments.Add("Of course you can order something, what would you like");
+            rerankDocuments.Add("Here are some recommendations: iced latte, cappuccino, espresso shot");
+            rerankDocuments.Add("The washroom is to the right");
+            rerankDocuments.Add("Sorry, I can't help you with that");
+
+            Debug.Log("runing");
+            StartCoroutine(rerank(rerankDocuments, "can you recommend something"));
+            Debug.Log(rankIndex);
+      
             // StartCoroutine(callCohere());
             audioSource = GetComponent<AudioSource>();
             // generatedText = "La France est un pays aux multiples facettes, riche d'une histoire profonde et d'une culture diversifiée. De la splendeur de Paris avec sa Tour Eiffel emblématique, ses musées d'art de renommée mondiale comme le Louvre, et ses charmantes rues pavées, à la beauté bucolique des régions telles que la Provence et la Vallée de la Loire, la France offre une expérience unique à chaque visiteur. La gastronomie française, réputée pour sa finesse et sa diversité, va des fromages savoureux et des vins délicats aux pâtisseries exquises et aux plats traditionnels comme le coq au vin. ";
