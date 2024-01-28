@@ -81,3 +81,4 @@ crashlytics-build.properties
 /Library/PackageCache
 Packages/manifest.json
 Packages/packages-lock.json
+.DS_Store
