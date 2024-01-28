@@ -221,7 +221,7 @@ namespace Samples.Whisper
             switch (scene)
             {
                 case 1:
-                    prompt = "vous êtes barista. prends ma commande. Ne parle pas anglais ou je me suiciderai. Gardez chaque réponse de 10 mots ou moins.";
+                    prompt = "vous êtes barista. prends ma commande. Ne parle pas anglais. Gardez chaque réponse de 10 mots ou moins.";
                     break;
                 case 2:
                     prompt = "Monday";
@@ -550,60 +550,65 @@ namespace Samples.Whisper
             {
                 Debug.Log("Form upload complete!");
 
-                // int retryCount = 0;
-                // int maxRetries = 3;
+                int retryCount = 0;
+                int maxRetries = 5;
                 AudioClip audio = null;
                 // bool shouldRetry = false;
 
-                // while (retryCount < maxRetries)
-                // {
-                audio = DownloadHandlerAudioClip.GetContent(request1);
-                yield return new WaitForSeconds(1.0f);
+                while (retryCount < maxRetries)
+                {
+                    audio = DownloadHandlerAudioClip.GetContent(request1);
+                    //yield return new WaitForSeconds(1.0f);
+                    //if (audio != null)
+                    //{
+                    //    audioSource.clip = audio;
+                    //    audioSource.Play();
+                    //}
+                    //else
+                    //{
+                    //    AudioClip audio_error = null;
+                    //    Debug.LogError("Error while getting audio clip: ");
+                    //    audio_error = Resources.Load<AudioClip>("pikapika");
+                    //    audioSource.clip = audio_error;
+                    //    audioSource.Play();
+                    //}
+
+                    if (!audio)
+                    {
+                        // Wait for 1 second before retrying
+                        Debug.Log("its null");
+                        yield return new WaitForSeconds(0.5f);
+                        retryCount++;
+                    }
+                    else
+                    {
+                        break; // Break the loop if no need to retry
+                    }
+                }
+
                 if (audio != null)
                 {
+                    // Use the audioClip here
+                    Debug.Log("Audio clip loaded successfully.");
+
                     audioSource.clip = audio;
                     audioSource.Play();
                 }
-                else
-                {
-                    AudioClip audio_error = null;
-                    Debug.LogError("Error while getting audio clip: ");
-                    audio_error = Resources.Load<AudioClip>("pikapika");
-                    audioSource.clip = audio_error;
-                    audioSource.Play();
-                }
 
-                // if (!audio)
-                // {
-                //     // Wait for 1 second before retrying
-                //     Debug.Log("its null");
-                //     yield return new WaitForSeconds(1.0f);
-                //     retryCount++;
-                // }
-                // else
-                // {
-                //     break; // Break the loop if no need to retry
-                // }
+
+                //try
+                //{
+                //AudioClip audio = DownloadHandlerAudioClip.GetContent(request1);
+                //float[] myFloatArray = new float[audio.samples * audio.channels];
+                //audio.GetData(myFloatArray, 0);
+                //foreach (float a in myFloatArray)
+                //{
+                //    Debug.Log(a);
+                //}
+                //audioSource.clip = audio;
+                //audioSource.Play();
+                //}
             }
-
-            // if (audio != null)
-            // {
-            //     // Use the audioClip here
-            //     Debug.Log("Audio clip loaded successfully.");
-            // }
-
-
-            // try {
-            // AudioClip audio = DownloadHandlerAudioClip.GetContent(request1);
-            // float[] myFloatArray = new float[audio.samples * audio.channels];
-            // audio.GetData(myFloatArray, 0);
-            // foreach (float a in myFloatArray)
-            // {
-            //     Debug.Log(a);
-            // }
-            // audioSource.clip = audio;
-            // audioSource.Play();
-            // }
         }
 
         void Start()
