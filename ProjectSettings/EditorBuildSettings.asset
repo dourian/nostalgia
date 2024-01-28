@@ -26,6 +26,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TipsScene.unity
     guid: 1092a7fe369f446078d7599759e76fce
+  - enabled: 1
+    path: Assets/Scenes/ending.unity
+    guid: 65394e3a6c0914326b01c950124400fc
   - enabled: 0
     path: Assets/Scenes/pipelines.unity
     guid: c2537c811fa7b4134b0808354f102af7

@@ -139,7 +139,7 @@ namespace Samples.Whisper
         private string cohereReRank = "https://api.cohere.ai/v1/rerank";
         private string cohereAPI = "";
 
-        private string elevenlabsURL = "https://api.elevenlabs.io/v1/text-to-speech/oW76A9DQMhaXu4F8IKwz";
+        private string elevenlabsURL = "https://api.elevenlabs.io/v1/text-to-speech/";
 
         private string elevenlabsAPI = "";
 
@@ -537,6 +537,7 @@ namespace Samples.Whisper
 
         public IEnumerator CallElevenAPI(string text)
         {
+
             // Create a dictionary for voice settings
             var voiceSettings = new Dictionary<string, double>
         {
@@ -688,6 +689,7 @@ namespace Samples.Whisper
             cohereAPI = lines[1];
             openAIAPI = lines[2];
             openai = new OpenAIApi(openAIAPI);
+            elevenlabsURL += lines[curScene + 2];
             Debug.Log("runing");
             List<string> rerankDocuments = new List<string>();
             rerankDocuments.Add("Of course you can order something, what would you like");
