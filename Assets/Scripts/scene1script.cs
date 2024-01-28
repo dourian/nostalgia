@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class scene1script : MonoBehaviour
 {
@@ -10,11 +11,25 @@ public class scene1script : MonoBehaviour
     [SerializeField] private TMP_Text message;
     private readonly int duration = 15;
     private float time = 0;
+    public CanvasGroup fadePanel;
+    public float fadeDuration = 2f; 
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
+    }
+
+    IEnumerator FadeOut(string sceneToLoad)
+    {
+        float fadeTime = 0;
+        while (fadeTime < fadeDuration)
+        {
+            fadeTime += Time.deltaTime;
+            fadePanel.alpha = fadeTime / fadeDuration;
+            yield return null;
+        }
+        SceneManager.LoadScene(sceneToLoad);
     }
 
     // Update is called once per frame
@@ -27,15 +42,15 @@ public class scene1script : MonoBehaviour
         }
         else if (time >= 10)
         {
-            message.SetText("we hope you enjoy");
+            message.SetText("Welcome to Paris, France,\nwhere you were born.");
         }
         else if (time >= 5)
         {
-            message.SetText("this is a game about growing up");
+            message.SetText("Hello,\nWelcome to your life.");
         }
         else
         {
-            message.SetText("title \n by Brayden, Dorian, Jayee, Sarina");
+            message.SetText("Vitre\nBy: Brayden, Dorian, Jayee, Sarina");
         }
     }
 }
