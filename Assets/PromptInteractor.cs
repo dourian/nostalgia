@@ -137,7 +137,7 @@ namespace Samples.Whisper
 
         [SerializeField] private Button recordButton;
         [SerializeField] private GameObject progressBar;
-        //[SerializeField] private TMP_Text message;
+        [SerializeField] private TMP_Text response_text;
 
         private readonly string fileName = "output.wav";
         private readonly int duration = 5;
@@ -177,26 +177,44 @@ namespace Samples.Whisper
                 FileData = new FileData() { Data = data, Name = "audio.wav" },
                 // File = Application.persistentDataPath + "/" + fileName,
                 Model = "whisper-1",
-                Language = "en"
+                Language = "fr"
             };
             var res = await openai.CreateAudioTranscription(req);
             Debug.Log("got response");
-
-
-
-            //message.SetText(res.Text);
+            StartCoroutine(callCohere(res.Text));
             chatHistory.Add(new ChatMessage("USER", res.Text));
             allUserSentences += res.Text + " ";
             Debug.Log(res.Text);
             recordButton.enabled = true;
         }
 
+        public string GeneratePreamble(int scene) {
+            string prompt = "";
+            switch (scene)
+            {
+                case 1:
+                    prompt = "Vous êtes barista dans un café et vous prendrez la commande d'un jeune enfant. Parlez uniquement en français, ne parlez pas en anglais et ne cassez pas votre caractère. Si tu parles anglais, je me suicide. gardez votre réponse aussi courte que possible, moins de 20 mots, sinon je me suiciderai.";
+                    break;
+                case 2:
+                    prompt = "Monday";
+                    break;
+                case 3:
+                    prompt = "Tuesday";
+                    break;
+            }
+
+            return prompt;
+        }
+
+
         public IEnumerator callCohere(string input)
         {
             var data = new
             {
                 message = input,
-                chat_history = chatHistory
+                chat_history = chatHistory,
+                preamble_override = GeneratePreamble(1),
+                presence_penalty = 1
             };
 
             string jsonString = JsonConvert.SerializeObject(data, Formatting.Indented);
@@ -225,6 +243,7 @@ namespace Samples.Whisper
                 // StartCoroutine(generateReport());
                 // StartCoroutine(getGrammarSuggestions());
                 StartCoroutine(CallElevenAPI(generatedText));
+                response_text.SetText(generatedText);
             }
         }
 
@@ -504,7 +523,7 @@ namespace Samples.Whisper
             cohereAPI = lines[1];
             openAIAPI = lines[2];
             openai = new OpenAIApi(openAIAPI);
-            StartCoroutine(callCohere());
+            //StartCoroutine(callCohere());
             audioSource = GetComponent<AudioSource>();
             // generatedText = "La France est un pays aux multiples facettes, riche d'une histoire profonde et d'une culture diversifiée. De la splendeur de Paris avec sa Tour Eiffel emblématique, ses musées d'art de renommée mondiale comme le Louvre, et ses charmantes rues pavées, à la beauté bucolique des régions telles que la Provence et la Vallée de la Loire, la France offre une expérience unique à chaque visiteur. La gastronomie française, réputée pour sa finesse et sa diversité, va des fromages savoureux et des vins délicats aux pâtisseries exquises et aux plats traditionnels comme le coq au vin. ";
             // StartCoroutine(CallElevenAPI());
