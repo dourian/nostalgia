@@ -235,7 +235,7 @@ namespace Samples.Whisper
             };
             var res = await openai.CreateAudioTranscription(req);
             Debug.Log("got response");
-            SendReply(res.Text);
+            StartCoroutine(callCohere(res.Text));
             chatHistory.Add(new ChatMessage("USER", res.Text));
             userMessages.Add(new ChatMessage("USER", res.Text));
 
@@ -276,44 +276,6 @@ namespace Samples.Whisper
             }
 
             return prompt;
-        }
-
-        private async void SendReply(string text)
-        {
-            var newMessage = new OpenAI.ChatMessage()
-            {
-                Role = "user",
-                Content = text
-            };
-
-            if (messages.Count == 0) newMessage.Content = GeneratePreamble(curScene) + "\n" + text;
-
-            messages.Add(newMessage);
-
-            //button.enabled = false;
-            //inputField.text = "";
-            //inputField.enabled = false;
-
-            // Complete the instruction
-            var completionResponse = await openai.CreateChatCompletion(new CreateChatCompletionRequest()
-            {
-                Model = "gpt-3.5-turbo-0613",
-                Messages = messages
-            });
-
-            if (completionResponse.Choices != null && completionResponse.Choices.Count > 0)
-            {
-                var message = completionResponse.Choices[0].Message;
-                message.Content = message.Content.Trim();
-                messages.Add(message);
-                StartCoroutine(CallElevenAPI(message.Content));
-                response_text.SetText(message.Content);
-                chatHistory.Add(new ChatMessage("CHATBOT", message.Content));
-            }
-            else
-            {
-                Debug.LogWarning("No text was generated from this prompt.");
-            }
         }
 
         public IEnumerator callCohere(string input)
