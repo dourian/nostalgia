@@ -591,7 +591,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: a4d5d9b63ec4641e6b96e37c23684eaa, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8595c3340ea48440ea37dcc5423f3fd2, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1620,7 +1620,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: pipelines
+          m_StringArgument: CafeScene
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!222 &150865457
@@ -6481,7 +6481,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8142a76d13a344084be76832fc2b8688, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 09f8c9db12e61481e8c21f2c17534e5f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -7869,7 +7869,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: baf0afb1b4f8144df99e2bfa99f52b9b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1820ae8cfb9e3437bac3a9ce6e8b9716, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
