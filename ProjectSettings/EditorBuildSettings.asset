@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/MenuScene.unity
     guid: a06fdf938ce4f8a41bf1bbb13ef3d64a
   - enabled: 1
+    path: Assets/scenes yay/Scenes/CafeScene.unity
+    guid: 61231490e6b1f48d2959dec4b1024402
+  - enabled: 0
     path: Assets/Scenes/pipelines.unity
     guid: c2537c811fa7b4134b0808354f102af7
   - enabled: 0
