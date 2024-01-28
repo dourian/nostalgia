@@ -15,6 +15,28 @@ using TMPro;
 namespace Samples.Whisper
 {
     [System.Serializable]
+    public class ReRankRoot
+    {
+        public string id;
+        public List<Result> results;
+        public Meta meta;
+    }
+
+    [System.Serializable]
+    public class Result
+    {
+        public Document document;
+        public int index;
+        public double relevance_score;
+    }
+
+    [System.Serializable]
+    public class Document
+    {
+        public string text;
+    }
+
+    [System.Serializable]
     public class RootObject
     {
         public string id;
@@ -111,6 +133,7 @@ namespace Samples.Whisper
     {
         private string cohereURL = "https://api.cohere.ai/v1/chat";
         private string cohereURLClassify = "https://api.cohere.ai/v1/classify";
+        private string cohereReRank = "https://api.cohere.ai/v1/rerank";
         private string cohereAPI = "";
 
         private string elevenlabsURL = "https://api.elevenlabs.io/v1/text-to-speech/Pln23uvtFNFOqsWYkpst";
@@ -126,6 +149,7 @@ namespace Samples.Whisper
 
         private List<ChatMessage> grammarSuggestionHistory = new List<ChatMessage>();
         private List<FrenchSentence> frenchClassificationSentences = new List<FrenchSentence>();
+        private List<string> rerankDocuments = new List<string>();
 
         public string allUserSentences = "";
 
@@ -291,6 +315,46 @@ namespace Samples.Whisper
                 UnityEngine.Debug.Log(request.downloadHandler.text);
                 RootObject response = JsonUtility.FromJson<RootObject>(request.downloadHandler.text);
                 Debug.Log(response.classifications[0].prediction);
+                // generatedText = response.text;
+            }
+
+        }
+
+        public IEnumerator rerank()
+        {
+            Debug.Log("running rerank");
+            rerankDocuments.Add("Of course you can order something, what would you like");
+            rerankDocuments.Add("Here are some recommendations: iced latte, cappuccino, espresso shot");
+            rerankDocuments.Add("The washroom is to the right");
+            rerankDocuments.Add("Sorry, I can't help you with that");
+
+            var data = new
+            {
+                return_documents = true,
+                max_chunks_per_doc = 10,
+                documents = rerankDocuments,
+                query = "where's the washroom"
+            };
+
+            string jsonString = JsonConvert.SerializeObject(data, Formatting.Indented);
+            UnityWebRequest request = UnityWebRequest.Put(cohereReRank, jsonString);
+            request.method = "POST";
+            request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Authorization", "Bearer " + cohereAPI);
+
+            yield return request.SendWebRequest();
+
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                UnityEngine.Debug.Log("issue encountered");
+                UnityEngine.Debug.Log("Error: " + request.error);
+            }
+            else
+            {
+                UnityEngine.Debug.Log(request.downloadHandler.text);
+                ReRankRoot response = JsonUtility.FromJson<ReRankRoot>(request.downloadHandler.text);
+
+                Debug.Log(response.results[0].document.text);
                 // generatedText = response.text;
             }
 
@@ -488,7 +552,7 @@ namespace Samples.Whisper
             // Load the text asset from the Resources folder
             TextAsset textAsset = Resources.Load<TextAsset>("keys");
 
-            // Check if the text asset is not null before reading lines
+            // // Check if the text asset is not null before reading lines
             if (textAsset != null)
             {
                 // Read lines from the text asset
@@ -504,7 +568,9 @@ namespace Samples.Whisper
             cohereAPI = lines[1];
             openAIAPI = lines[2];
             openai = new OpenAIApi(openAIAPI);
-            StartCoroutine(callCohere());
+            Debug.Log("runing");
+            StartCoroutine(rerank());
+            // StartCoroutine(callCohere());
             audioSource = GetComponent<AudioSource>();
             // generatedText = "La France est un pays aux multiples facettes, riche d'une histoire profonde et d'une culture diversifiée. De la splendeur de Paris avec sa Tour Eiffel emblématique, ses musées d'art de renommée mondiale comme le Louvre, et ses charmantes rues pavées, à la beauté bucolique des régions telles que la Provence et la Vallée de la Loire, la France offre une expérience unique à chaque visiteur. La gastronomie française, réputée pour sa finesse et sa diversité, va des fromages savoureux et des vins délicats aux pâtisseries exquises et aux plats traditionnels comme le coq au vin. ";
             // StartCoroutine(CallElevenAPI());

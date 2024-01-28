@@ -1,10 +1,19 @@
 {
   "dependencies": {
     "com.meta.xr.simulator": {
-      "version": "file:/Users/dorianchen/Downloads/package",
+      "version": "file:/Users/sarinali/Downloads/Archive/package",
       "depth": 0,
       "source": "local",
       "dependencies": {}
+    },
+    "com.srcnalt.openai-unity": {
+      "version": "https://github.com/srcnalt/OpenAI-Unity.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.1"
+      },
+      "hash": "f7f501c076f27a12a2cbb2fa1235a106ce7b16e3"
     },
     "com.unity.burst": {
       "version": "1.8.12",
@@ -106,6 +115,13 @@
     },
     "com.unity.mathematics": {
       "version": "1.2.6",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.nuget.newtonsoft-json": {
+      "version": "3.2.1",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
