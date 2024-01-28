@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.meta.xr.simulator": {
-      "version": "file:/Users/sarinali/Downloads/Archive/package",
+      "version": "file:/Users/dorianchen/Downloads/package",
       "depth": 0,
       "source": "local",
       "dependencies": {}
@@ -122,11 +122,7 @@
     },
     "com.unity.nuget.newtonsoft-json": {
       "version": "3.2.1",
-<<<<<<< Updated upstream
-      "depth": 1,
-=======
       "depth": 0,
->>>>>>> Stashed changes
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
