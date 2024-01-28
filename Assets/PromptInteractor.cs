@@ -211,12 +211,14 @@ namespace Samples.Whisper
             Debug.Log("got response");
             SendReply(res.Text);
             chatHistory.Add(new ChatMessage("USER", res.Text));
+            userMessages.Add(new ChatMessage("USER", res.Text));
             allUserSentences += res.Text + " ";
             Debug.Log(res.Text);
             recordButton.enabled = true;
         }
 
-        public string GeneratePreamble(int scene) {
+        public string GeneratePreamble(int scene)
+        {
             string prompt = "";
             switch (scene)
             {
@@ -457,18 +459,8 @@ namespace Samples.Whisper
 
         public IEnumerator getGrammarSuggestions()
         {
-            // userMessages.Add(new ChatMessage("USER", "Je me appelle Sarina"));
-            int loopCount = Math.Min(5, userMessages.Count);
-            string userSentences = "";
 
-            for (int i = 0; i < loopCount; i++)
-            {
-                ChatMessage message = userMessages[i];
-                // Process message here
-                userSentences += message.message + " ";
-            }
-
-            string promptMessage = "Please provide concise grammar suggestions for the following sentences: " + userSentences;
+            string promptMessage = "Please provide concise grammar suggestions for the following sentences: " + allUserSentences;
 
             var data = new
             {
@@ -653,7 +645,7 @@ namespace Samples.Whisper
         // Update is called once per frame
         void Update()
         {
-            
+
 
             if (isRecording)
             {
